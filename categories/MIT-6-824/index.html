@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,7 @@
 
 
 
-<title>Tags | Hexo</title>
+<title>Category: MIT 6.824 | Hexo</title>
 
 
 
@@ -40,7 +40,44 @@
 
     
     
-        
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
     
 
 
@@ -69,14 +106,14 @@
         <header>
     <nav class="navbar">
         <div class="container">
-            <div class="navbar-header header-logo"><a href="/">Starry54&#39;s Notes</a></div>
+            <div class="navbar-header header-logo"><a href="/">Starry54&#39; Notes</a></div>
             <div class="menu navbar-right">
                 
                     <a class="menu-item" href="/archives">Posts</a>
                 
-                    <a class="menu-item" href="/categories">Categories</a>
+                    <a class="menu-item" href="/category">Categories</a>
                 
-                    <a class="menu-item" href="/tags">Tags</a>
+                    <a class="menu-item" href="/tag">Tags</a>
                 
                     <a class="menu-item" href="/about">About</a>
                 
@@ -91,7 +128,7 @@
         <div class="container">
             <div class="navbar-header">
                 <div>
-                    <a href="/">Starry54&#39;s Notes</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                    <a href="/">Starry54&#39; Notes</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
                 </div>
                 <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
             </div>
@@ -99,9 +136,9 @@
                 
                     <a class="menu-item" href="/archives">Posts</a>
                 
-                    <a class="menu-item" href="/categories">Categories</a>
+                    <a class="menu-item" href="/category">Categories</a>
                 
-                    <a class="menu-item" href="/tags">Tags</a>
+                    <a class="menu-item" href="/tag">Tags</a>
                 
                     <a class="menu-item" href="/about">About</a>
                 
@@ -124,15 +161,39 @@
     }
 </script>
             <div class="main">
-                <div class="container">
-    <article class="post-wrap page">
+                
+
+
+    
+<div class="container">
+    <div class="post-wrap categories">
+        <h2 class="post-title">-&nbsp;Categories&nbsp;·&nbsp;MIT 6.824-</h2>
+    </div>
+    <div class="post-wrap archive">
+    
+    
         
-        <h2 class="post-title">Tags</h2>
+
         
-        <section class="post-content">
-            
-        </section>
-    </article>
+            <h3>2023</h3>
+        
+
+        <article class="archive-item">
+            <a class="archive-item-link" href="/2023/08/ba8fdbe5abd1.html">Raft</a>
+            <span class="archive-item-date">August 5, 2023</span>
+        </article>
+    
+        
+
+        
+
+        <article class="archive-item">
+            <a class="archive-item-link" href="/2023/08/674a10417a26.html">MapReduce</a>
+            <span class="archive-item-date">August 5, 2023</span>
+        </article>
+    
+    
+</div>
 </div>
 
             </div>
