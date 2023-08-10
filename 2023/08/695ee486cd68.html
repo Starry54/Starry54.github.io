@@ -13,7 +13,7 @@
 
 
 
-<title>MapReduce | Starry54</title>
+<title>绝对=&gt;相对 | Starry54</title>
 
 
 
@@ -233,7 +233,7 @@
     
     <article class="post-wrap">
         <header class="post-header">
-            <h1 class="post-title">MapReduce</h1>
+            <h1 class="post-title">绝对=&gt;相对</h1>
             
                 <div class="post-meta">
                     
@@ -242,23 +242,94 @@
 
                     
                         <span class="post-time">
-                        Date: <a href="#">August 5, 2023&nbsp;&nbsp;1:08:35</a>
+                        Date: <a href="#">August 10, 2023&nbsp;&nbsp;20:28:51</a>
                         </span>
                     
-                    
-                        <span class="post-category">
-                    Category:
-                            
-                                <a href="/categories/MIT-6-824/">MIT 6.824</a>
-                            
-                        </span>
                     
                 </div>
             
         </header>
 
         <div class="post-content">
-            <h1 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h1><p>MapReduce是一个<strong>程序模型</strong>和一个<strong>用于处理和生成大型数据集的相关实现</strong>。用户指定一个<code>map</code>函数，该函数<strong>处理KV键值对</strong>以<strong>生成一组中间KV对</strong>，同时有一个<code>reduce</code>函数，该函数<strong>合并同一中间Key相关联的所有Value</strong>。正如论文所示，许多现实世界的任务都可以用这个模型来表达。<br>采用这种函数式编程风格编写的程序会<strong>自动并行化</strong>，并且在大型集群上执行。</p>
+            <p>110场双周赛 T4</p>
+<blockquote>
+<p>Problem： <a href="https://link.juejin.cn/?target=https://leetcode.cn/problems/minimum-time-to-make-array-sum-at-most-x/">2809. 使数组和小于等于 x 的最少时间</a></p>
+</blockquote>
+<h1 id="如何比较两种方案的优劣？"><a href="#如何比较两种方案的优劣？" class="headerlink" title="如何比较两种方案的优劣？"></a>如何比较两种方案的优劣？</h1><p>&#x3D;&gt; 计算相对值往往比绝对值容易</p>
+<ol>
+<li>答案最大是多少？</li>
+</ol>
+<p>假设对一个下标操作了两次，其合并为一次更优</p>
+<p>因此答案最大为n</p>
+<ol>
+<li>从小到大枚举答案</li>
+</ol>
+<p>t &#x3D; 1， 选择当前最大的元素，归零</p>
+<p>t &#x3D; 2，如何比较不同的选取方式的优劣？</p>
+<blockquote>
+<p>假设选取的下标为<code>i</code>，<code>j</code></p>
+<p>&#x3D;&gt; 先<code>i</code>后<code>j</code> or 先<code>j</code>后<code>i</code> ？</p>
+</blockquote>
+<p>如果有三个下标？</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>i</th>
+<th>j</th>
+<th>k</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>2 * nums2[i]</td>
+<td>1 * nums2[j]</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1 * nums2[i]</td>
+<td>2 * nums2[j]</td>
+<td>0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0</td>
+<td>1 * nums2[j]</td>
+<td>2 * nums2[k]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0</td>
+<td>2 * nums2[j]</td>
+<td>1 * nums2[k]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1 * nums2[i]</td>
+<td>0</td>
+<td>2 * nums2[k]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2 * nums2[i]</td>
+<td>0</td>
+<td>1 * nums2[k]</td>
+</tr>
+</tbody></table>
+<p>可以看出，其实本质上是对<code>i</code>，<code>j</code>，<code>k</code>分配从0开始的系数，从而得出不同的结果。</p>
+<blockquote>
+<p>排序不等式：倒序乘积和 &lt;&#x3D; 乱序乘积和 &lt;&#x3D; 正序乘积和</p>
+<p>&#x3D;&gt; 大的系数分配给大的nums2[k]</p>
+<p>&#x3D;&gt; 将<code>nums1</code>按照<code>nums2</code>的大小重新排序，<code>nums2</code>越小，越先进行操作</p>
+</blockquote>
+<p>原问题</p>
+<p>&#x3D;&gt; 从<code>nums1</code>中选取一个子序列，子序列的元素分别变为 nums1[i] + j \times nums2[i] （<code>j</code>为元素在子序列中的索引）, <strong>最大化子序列的元素和</strong></p>
+<p>&#x3D;&gt; 最大子序列和变题</p>
+<p>&#x3D;&gt; f[i+1][j]：前<code>i</code>个数中，选取长度为<code>j</code>的子序列，求最大的元素和</p>
+<p>&#x3D;&gt; f[i+1][j] &#x3D; Max(f[i][j], f[i][j-1] + nums1[i] + \times nums2[i])</p>
+<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">ini复制代码class Solution &#123;</span><br><span class="line">    public int minimumTime(List&lt;Integer&gt; nums1, List&lt;Integer&gt; nums2, int x) &#123;</span><br><span class="line">        int <span class="attr">n</span> = nums1.size()<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">        int <span class="attr">sum1</span> = <span class="number">0</span>, sum2 = <span class="number">0</span><span class="comment">;</span></span><br><span class="line">        var <span class="attr">ids</span> = new Integer[n]<span class="comment">;</span></span><br><span class="line">        for (int <span class="attr">i</span> = <span class="number">0</span><span class="comment">; i &lt; n; i++) &#123;</span></span><br><span class="line">            ids<span class="section">[i]</span> = i<span class="comment">;</span></span><br><span class="line">            sum1 += nums1.get(i)<span class="comment">;</span></span><br><span class="line">            sum2 += nums2.get(i)<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">        // 按照nums2的大小, 从小到大排序</span><br><span class="line">        Arrays.sort(ids, (i, j) -&gt; nums2.get(i) - nums2.get(j))<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">        // 最大子序和的变体, </span><br><span class="line">        // dp<span class="section">[i+1]</span><span class="section">[j]</span>：前i个数中，选取长度为j的子序列，求最大的元素和</span><br><span class="line">        int<span class="section">[]</span><span class="section">[]</span> <span class="attr">dp</span> = new int[n+<span class="number">1</span>][n+<span class="number">1</span>]<span class="comment">;</span></span><br><span class="line">        </span><br><span class="line">        for (int <span class="attr">i</span> = <span class="number">0</span><span class="comment">; i &lt; n; i++) &#123;</span></span><br><span class="line">            for (int <span class="attr">j</span> = <span class="number">1</span><span class="comment">; j &lt;= n; j++) &#123;</span></span><br><span class="line">                dp<span class="section">[i+1]</span><span class="section">[j]</span> = Math.max(dp<span class="section">[i]</span><span class="section">[j]</span>, dp<span class="section">[i]</span><span class="section">[j-1]</span> + nums1.get(ids<span class="section">[i]</span>)+ j * nums2.get(ids<span class="section">[i]</span>))<span class="comment">;</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        for (int <span class="attr">i</span> = <span class="number">0</span><span class="comment">; i &lt;= n; i++) &#123; </span></span><br><span class="line">            if (sum1 + sum2 * i - dp<span class="section">[n]</span><span class="section">[i]</span> &lt;= x) return i<span class="comment">;</span></span><br><span class="line">        &#125;</span><br><span class="line">    </span><br><span class="line">        return -1<span class="comment">;</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
 
         </div>
 
@@ -273,7 +344,7 @@
                 
                     <p class="copyright-item">
                         <span>Permalink:</span>
-                        <span><a href="https://starry54.github.io/2023/08/674a10417a26.html">https://starry54.github.io/2023/08/674a10417a26.html</a></span>
+                        <span><a href="https://starry54.github.io/2023/08/695ee486cd68.html">https://starry54.github.io/2023/08/695ee486cd68.html</a></span>
                     </p>
                 
                 
@@ -306,8 +377,8 @@
         </section>
         <section class="post-nav">
             
-                <a class="prev" rel="prev" href="/2023/08/ba8fdbe5abd1.html">Raft</a>
             
+            <a class="next" rel="next" href="/2023/08/ba8fdbe5abd1.html">Raft</a>
             
         </section>
 
