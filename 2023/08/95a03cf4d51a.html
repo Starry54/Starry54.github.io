@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="鹤染">
+
+
+
+
+
+<title>服务端大文件高效分片，断点续传实践 | Starry54</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Starry54&#39; Notes</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Starry54&#39; Notes</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">服务端大文件高效分片，断点续传实践</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">鹤染</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">August 12, 2023&nbsp;&nbsp;15:07:52</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="故事背景"><a href="#故事背景" class="headerlink" title="故事背景"></a>故事背景</h1><p>在实际场景中，大文件往往需要较长的时间才能上传完毕，在这段时间内可能会发生网络中断、用户取消上传等等风险，从而导致文件上传失败，因此我们需要尽可能提高上传性能以及稳定性，从而优化用户体验。</p>
+<h1 id="环境介绍"><a href="#环境介绍" class="headerlink" title="环境介绍"></a>环境介绍</h1><p>前端：Vue</p>
+<p>后端：SpringBoot</p>
+<p>缓存：Redis</p>
+<p>云存储：OBS&#x2F;minIO</p>
+<blockquote>
+<p>minIO和OBS的区别：</p>
+<p>minIO较轻量级，支持<strong>私有环境部署</strong>，适用于隐私要求更高的场景；</p>
+<p>OBS能够存储海量数据，同时具备高拓展性和灵活性。</p>
+</blockquote>
+<h1 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h1><h2 id="技术分析"><a href="#技术分析" class="headerlink" title="技术分析"></a>技术分析</h2><p>本质上，我们需要重写后台的<code>upload</code>方法，将其由直接上传改为分片上传，同时支持断点续传。为了方便叙述，下面的讨论围绕minIO来进行。</p>
+<h2 id="方案选择"><a href="#方案选择" class="headerlink" title="方案选择"></a>方案选择</h2><h3 id="传输方案"><a href="#传输方案" class="headerlink" title="传输方案"></a>传输方案</h3><ol>
+<li>前台分片，后台上传</li>
+<li>前台分片，前台上传 </li>
+<li>后台分片，后端分片</li>
+</ol>
+<p>如果单纯考虑传输的性能，无疑跳过后台，直接上传至minIO为最优。但是考虑到项目的复杂性，安全性，在服务端做了多重校验，如果绕过后台直接上传分片，就难以检测出这些漏洞文件(<a target="_blank" rel="noopener" href="https://blog.csdn.net/j2IaYU7Y/article/details/82321082">ZIP炸弹</a>, <a target="_blank" rel="noopener" href="https://blog.csdn.net/ghosind/article/details/106198393">脚本注入</a>等)，因此我们选用后台分片并执行上传的逻辑。</p>
+<h3 id="分片方案"><a href="#分片方案" class="headerlink" title="分片方案"></a>分片方案</h3><p>对于任何文件，到达<code>upload</code>方法时，说明其已经通过各种完整性，安全性校验。此时对于我们而言，就是要以性能最佳的方式将其分片，然后以并发的方式进行上传。</p>
+<p>初步有一下几个想法</p>
+<ol>
+<li>多线程读写分片</li>
+<li>适用NIO进行分片</li>
+<li>直接利用stream流来分片</li>
+</ol>
+<p>最终基于性能的权衡，选用了<a target="_blank" rel="noopener" href="https://pdai.tech/md/java/io/java-io-nio.html">NIO</a>来对文件进行分片的操作，有以下好处</p>
+<p>NIO是非阻塞的，面向块的，通过一个选择器轮询监听多个Channel的IO事件，从而可以提高性能和减少开销。</p>
+<h3 id="续传方案"><a href="#续传方案" class="headerlink" title="续传方案"></a>续传方案</h3><p>有了上面分片的基础，续传的操作就很显然了。</p>
+<p>我们只需要记录下每个文件分片的ID，在传输前检测其是否存在数据库记录，如果存在，则说明此时minIO中有该分片的临时桶，无需重复上传。上传所有之前未能传输的分片即可完成续传的操作。</p>
+<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><ol>
+<li>相比MD5标识文件，选用更安全的<a target="_blank" rel="noopener" href="https://hicalvin.github.io/tech/2022/11/md5_or_sha256#:~:text=%E6%80%BB%E7%9A%84%E6%9D%A5%E8%AF%B4%EF%BC%8CSHA256,%E4%BC%9A%E5%AF%B9%E4%BD%BF%E7%94%A8%E9%80%A0%E6%88%90%E5%BD%B1%E5%93%8D%E3%80%82">sha256</a></li>
+<li>通过用户ID隔绝不同用户的包内容</li>
+<li>文件在后台通过安全性检测后才进行上传</li>
+<li>模拟多种CORNER CASE进行测试</li>
+</ol>
+<h2 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h2><p><img src="https://hurry11.oss-cn-nanjing.aliyuncs.com/img/image-20230814231016630.png" alt="multiPartUpload"></p>
+<h2 id="边界测试"><a href="#边界测试" class="headerlink" title="边界测试"></a>边界测试</h2><p>&#x2F;&#x2F; TODO 等我过了测试再说()</p>
+<h2 id="度量标准"><a href="#度量标准" class="headerlink" title="度量标准"></a>度量标准</h2><p>&#x2F;&#x2F; TODO</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽然是真正项目中的代码，但是还是有很多可以优化的地方。</p>
+<ol>
+<li>minIO中对于文件合并的逻辑并不适合这种分片的合并，它认为各个分片没有关联，可以通过override来修改其逻辑，不过项目考虑考后续维护的成本和开源的规范，未曾实践</li>
+<li>没有考虑分布式场景的分片和续传，后续可以学习一下优秀开源项目中相关的实现</li>
+</ol>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>鹤染</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://starry54.github.io/2023/08/95a03cf4d51a.html">https://starry54.github.io/2023/08/95a03cf4d51a.html</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2023/08/ef2c1b1d7bb3.html">二维凸包</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 鹤染 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
