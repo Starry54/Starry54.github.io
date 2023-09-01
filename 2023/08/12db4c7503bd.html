@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="鹤染">
+
+
+
+
+
+<title>Starry54</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Starry54&#39; Notes</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Starry54&#39; Notes</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title"></h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">鹤染</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">August 29, 2023&nbsp;&nbsp;21:57:36</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h1 id="Lab-1"><a href="#Lab-1" class="headerlink" title="Lab 1"></a>Lab 1</h1><h1 id="Lab-2"><a href="#Lab-2" class="headerlink" title="Lab 2"></a>Lab 2</h1><p>在这一阶段，你将实现Raft算法的基本组成，包括leader选举，日志拷贝，持久化和日志压缩</p>
+<h2 id="2A"><a href="#2A" class="headerlink" title="2A"></a>2A</h2><p>这一部分需要实现Raft算法的<strong>leader选举</strong>和<strong>心跳</strong></p>
+<h3 id="计时器"><a href="#计时器" class="headerlink" title="计时器"></a>计时器</h3><p>所有的Raft节点在<code>MAKE()</code>时，会创建一个后台协程<code>ticker()</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">electionTicker  *time.Timer</span><br><span class="line">heartBeatTicker *time.Timer</span><br></pre></td></tr></table></figure>
+
+<p>通过Golang的time包，创建两个计时器，分别用于发起心跳和发起选举</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span></span> ticker() &#123;</span><br><span class="line">    <span class="keyword">for</span> rf.killed() == <span class="literal">false</span> &#123;</span><br><span class="line">        <span class="keyword">select</span> &#123;</span><br><span class="line">        <span class="keyword">case</span> &lt;-rf.electionTicker.C:</span><br><span class="line">            rf.startElection()</span><br><span class="line">        <span class="keyword">case</span> &lt;-rf.heartBeatTicker.C:</span><br><span class="line">            rf.startHeartBeat()</span><br><span class="line">        &#125;</span><br><span class="line">        time.Sleep(<span class="number">10</span> * time.Millisecond)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="选举"><a href="#选举" class="headerlink" title="选举"></a>选举</h3><p>配置定时器，follower节点到期自动发起选举(<code>startElection()</code>)</p>
+<h4 id="startElectionWithLock"><a href="#startElectionWithLock" class="headerlink" title="startElectionWithLock"></a>startElectionWithLock</h4><ol>
+<li>只有非leader节点才能发起选举</li>
+<li>立即转<strong>变为CANDIDATE</strong>，<strong>任期自增</strong>，<strong>投票给自己</strong></li>
+<li><strong>并行地</strong>向其他节点发起RequestVoteRPC，并接受响应</li>
+<li>当选票数过半，晋升leader，并<strong>立即发起一轮心跳</strong>建立权威</li>
+<li>原子操作</li>
+</ol>
+<h4 id="sendRequestVote"><a href="#sendRequestVote" class="headerlink" title="sendRequestVote"></a>sendRequestVote</h4><p>向指定节点发起RequestVoteRPC，并对响应消息进行处理</p>
+<h4 id="RequestVoteWithLock"><a href="#RequestVoteWithLock" class="headerlink" title="RequestVoteWithLock"></a>RequestVoteWithLock</h4><p>用于处理接收到的RequestVoteRPC请求</p>
+<ol>
+<li>舍弃过期请求</li>
+<li>当请求中的任期号大于自身，立即转变为follower</li>
+<li>只给比自己日志<strong>比自己新</strong>或<strong>和自己一样新</strong>的节点投票</li>
+<li>一个任期中只能投一票</li>
+<li>原子操作</li>
+</ol>
+<p>[选举限制](# 选举限制)</p>
+<h3 id="心跳"><a href="#心跳" class="headerlink" title="心跳"></a>心跳</h3><p>配置定时器，到期自动发起心跳(<code>startHeartBeat()</code>)</p>
+<h4 id="startHeartBeat"><a href="#startHeartBeat" class="headerlink" title="startHeartBeat"></a>startHeartBeat</h4><ol>
+<li>只有leader节点能够发起</li>
+<li>重置心跳计时器</li>
+<li>并行地向其他节点发起心跳，以维持自己的权威</li>
+<li>原子操作</li>
+</ol>
+<h4 id="sendHeartBeat"><a href="#sendHeartBeat" class="headerlink" title="sendHeartBeat"></a>sendHeartBeat</h4><ol>
+<li>不携带Entry条目的AppendEntriesRPC，未处理其响应</li>
+</ol>
+<h4 id="AppendEntries-Entry为空"><a href="#AppendEntries-Entry为空" class="headerlink" title="AppendEntries(Entry为空)"></a>AppendEntries(Entry为空)</h4><p>用于处理接收到的AppendEntriesRPC请求</p>
+<ol>
+<li>舍弃过期请求</li>
+<li>当请求中的任期号大于自身，立即转变为follower</li>
+<li>重置自己的选举计时器</li>
+<li>原子操作</li>
+</ol>
+<blockquote>
+<p>运行go test -run -race 2A，PASS</p>
+<p>至此，2A完成</p>
+</blockquote>
+<h2 id="2B"><a href="#2B" class="headerlink" title="2B"></a>2B</h2><p>需要实现leader和follower的附加日志功能</p>
+<h3 id="leader节点"><a href="#leader节点" class="headerlink" title="leader节点"></a>leader节点</h3><h4 id="Start"><a href="#Start" class="headerlink" title="Start()"></a>Start()</h4><p>leader节点从Client接受指令</p>
+<ol>
+<li>给自己附加日志</li>
+<li>并行的向其他节点发起AppendEntriesRPC</li>
+<li>原子操作</li>
+</ol>
+<h4 id="replicator"><a href="#replicator" class="headerlink" title="replicator()"></a>replicator()</h4><p>Leader为每个follower发起一个开启一个独立的协程,不断向其拷贝日志</p>
+<ol>
+<li>如果没有日志需要拷贝，直接阻塞</li>
+<li>有新日志，并行发起拷贝(拷贝的最终一致性由[日志匹配原则](# 几个原则)保证)</li>
+</ol>
+<h4 id="commitChecker"><a href="#commitChecker" class="headerlink" title="commitChecker()"></a>commitChecker()</h4><p>判断leader节点是否需要更新commitIndex</p>
+<ol>
+<li>对matchIndex进行排序(其中matchIndex[rf.me]设置为INT_MAX即可)</li>
+<li>取其中位数(matchIndex[nums&#x2F;2])，即为当前大部分节点已经匹配成功的值</li>
+<li>如果<strong>该值大于原有的commitIndex</strong>且<a href="%E6%97%A5%E5%BF%97%E6%8F%90%E4%BA%A4"><strong>该条目属于当前任期</strong></a>，才发起更新，并唤醒applier线程</li>
+</ol>
+<blockquote>
+<ol>
+<li>如果leader提交了不属于自己任期的日志，那么就会出发Figure8中的问题</li>
+<li>其他节点的commitIndex将通过AppendEntries中附带的leaderCommit帮助更新</li>
+</ol>
+</blockquote>
+<h3 id="follower节点"><a href="#follower节点" class="headerlink" title="follower节点"></a>follower节点</h3><h4 id="AppendEntriesWithLock"><a href="#AppendEntriesWithLock" class="headerlink" title="AppendEntriesWithLock()"></a>AppendEntriesWithLock()</h4><p>处理leader发送的附加日志RPC</p>
+<ol>
+<li>抛弃过期请求</li>
+<li>转变为Follower，更新自己的任期，重置选举计时器</li>
+<li>判断附加日志和自身是否匹配，<ol>
+<li>不匹配则返回conflictIndex和conflictTerm帮助[回退加速](# 回退加速)</li>
+<li>满足匹配规则，则覆盖原有日志&#x2F;附加日志</li>
+</ol>
+</li>
+<li>判断commitIndex是否需要更新<ol>
+<li>取<code>leaderCommitIndex</code>和最新附加的日志的<code>最后一条的index</code>的<strong>最小值</strong></li>
+</ol>
+</li>
+</ol>
+<h4 id="applier"><a href="#applier" class="headerlink" title="applier()"></a>applier()</h4><p>每个节点均开启一个独立协程, 用于辅助将日志作用于状态机</p>
+<ol>
+<li>一次并非只apply一条Entry</li>
+<li>及时刷新<code>lastApplied</code></li>
+</ol>
+<blockquote>
+<p>如果TestRPCBytes2B无法通过，说明有很多无用RPC，建议参考<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.824/labs/lab-raft.html">Guide手册</a>，for循环中借助time.Sleep(10 * time.<em>Millisecond</em>)来减少频繁发起RPC</p>
+</blockquote>
+<h2 id="2C"><a href="#2C" class="headerlink" title="2C"></a>2C</h2><p>需要实现对不频繁变更的字段进行持久化</p>
+<blockquote>
+<p>如果2C的TestFigure8Unreliable2C一直fail to reach agree，那么大概率是AppendEntries的处理逻辑有问题</p>
+</blockquote>
+<h4 id="persist"><a href="#persist" class="headerlink" title="persist()"></a>persist()</h4><p>对涉及votedFor，currentTerm，log修改的地方，添加持久化的操作</p>
+<p>需要保证该操作是在持有锁的情况下执行的</p>
+<h4 id="readPersistWithLock"><a href="#readPersistWithLock" class="headerlink" title="readPersistWithLock()"></a>readPersistWithLock()</h4><p>节点MAKE时，会先读取持久化的内容，这一操作是原子的</p>
+<blockquote>
+<p>最终的通过率大约在99.9%，主要是Figure8Unreliable2C这个用例，目测需要延长选举超时时间，减少心跳时间(具体需要根据机器配置而定)</p>
+</blockquote>
+<blockquote>
+<p>修改缩短心跳时间，延长选举时间后，2000次Bugfree通过</p>
+</blockquote>
+<p><img src="https://pic.leetcode.cn/1693303992-LbwGAa-image-20230829162204605.png" alt="image-20230829162204605.png"></p>
+<h2 id="2D"><a href="#2D" class="headerlink" title="2D"></a>2D</h2><h1 id="Lab-3"><a href="#Lab-3" class="headerlink" title="Lab 3"></a>Lab 3</h1><h1 id="Lab-4"><a href="#Lab-4" class="headerlink" title="Lab 4"></a>Lab 4</h1><h1 id="TIPS"><a href="#TIPS" class="headerlink" title="TIPS"></a>TIPS</h1><h2 id="默认规则"><a href="#默认规则" class="headerlink" title="默认规则"></a>默认规则</h2><h3 id="所有服务器"><a href="#所有服务器" class="headerlink" title="所有服务器"></a>所有服务器</h3><ul>
+<li>如果commitIndex &gt; lastApplied：自增lastApplied，同时将对应的日志条目应用到状态机</li>
+<li>如果RPC的<strong>请求或者响应</strong>中包含 term T &gt; currentTerm：那么将currentTerm设为T，并且装变为Follower</li>
+</ul>
+<h3 id="Followers"><a href="#Followers" class="headerlink" title="Followers"></a>Followers</h3><ul>
+<li>响应来自Candidate和Leader的RPC</li>
+<li>如果在选取超时之前没有收到来自Leader的AppendEntriesRPC或者Candidate的RequestVoteRPC，则自己转变为Candidate</li>
+</ul>
+<h3 id="Candidates"><a href="#Candidates" class="headerlink" title="Candidates"></a>Candidates</h3><ul>
+<li>成为Candidate之后，发起选举<ul>
+<li>自增currentTerm</li>
+<li>投票给自己</li>
+<li>重置选举计时器</li>
+<li>发送RequestVoteRPC给其他的节点</li>
+</ul>
+</li>
+<li>如果收到来自大部分服务器的选票，成为leader</li>
+<li><strong>如果收到来自新leader的AppendEntriesRPC，那么转为follower</strong></li>
+</ul>
+<h3 id="Leaders"><a href="#Leaders" class="headerlink" title="Leaders"></a>Leaders</h3><ul>
+<li>一旦成为Leader：向其他所有的服务器发送<strong>空的AppendEntriesRPC</strong>；在空闲时间不断发送以防止选举超时</li>
+<li>如果收到来自客户端的请求：像本地增加日志条目，该条目作用到状态机后才响应客户端</li>
+<li>如果last log index $\ge$ nextIndex：通过AppendEntriesRPC将nextIndex之后所有的日志条目发送出去<ul>
+<li>如果成功：发更近nextIndex和matchIndex</li>
+<li>如果失败(由于日志的不一致)：减少nextIndex并重试</li>
+</ul>
+</li>
+<li>如果存在N，且N &gt; commitIndex，且大部分服务器的matchIndex[i] $\ge$ N，并且log[N].term &#x3D;&#x3D; currentTerm：那么commitIndx &#x3D; N</li>
+</ul>
+<h3 id="几个原则"><a href="#几个原则" class="headerlink" title="几个原则"></a>几个原则</h3><ul>
+<li>选举安全原则：一个任期至多允许一个Leader选举成功</li>
+<li>Leader只附加原则：Leader永远不会覆盖或者删除自己的日志，只会附加日志条目</li>
+<li>日志匹配原则：如果两个服务器的日志相同的索引上的日志的任期号完全相同，那么这两个日志从头到该索引的日志完全相同</li>
+<li>Leader完全原则：如果一个日志条目在给定任期内被提交，那么这个条目一定会出现在所有更新任期的Leader中</li>
+<li>状态机安全原则：如果一个服务器已经将给定索引位置的条目应用到状态机中，则其他的所有的服务器在该位置不会出现不同的条目</li>
+</ul>
+<h2 id="日志提交"><a href="#日志提交" class="headerlink" title="日志提交"></a>日志提交</h2><p>如同[日志复制](# 日志复制)中描述的，一旦当前任期的某个日志条目已经存储到过半的节点上，leader就知道该节点已经被提交了。</p>
+<p>如果某个leader在提交之前崩溃了，以后leader会试图完成日志条目的复制，然而，新leader无法判定之前的条目是否已经被提交了。</p>
+<p><img src="/./img/image-20230731162535459.png" alt="image-20230731162535459"></p>
+<blockquote>
+<p>如图</p>
+<p>(a)中S1为leader，部分复制了索引2的日志条目</p>
+<p>(b)中S1崩溃，S5在任期3中赢得S3，S4的选票，并从客户端接受了新的日志条目，放在索引2处</p>
+<p>(c)中S5崩溃；S1重新启动，选举成功，继续复制日志</p>
+<p>此时日志(Term2,Index2)已经完成过半的复制，如果S1直接提交了这条日志</p>
+<p>(d)中再次崩溃，S5当选leader，并将日志(Term3,Index2)复制到其他节点并提交，显然这是不被允许的，因为<strong>索引为2的日志提交了两次</strong>。</p>
+<p>(e)如果S1没有崩溃，S1写入日志(Term4,Index3)，这条日志被成功复制到大多数，这样S5就不会成为leader，自然没有问题了</p>
+</blockquote>
+<blockquote>
+<p>出现上述问题的<strong>根本原因</strong>：(c)中任期4的S1提交了任期2的日志条目</p>
+<p>正确的做法应该是：等到任期4的条目复制完后，同时提交两条记录</p>
+</blockquote>
+<p>我们的目的就是要避免(d)中的问题，因此Raft<strong>永远不会通过计算副本数量的方式</strong>来提交之前任期内的日志条目。</p>
+<p>只有<strong>leader当前任期的日志条目才通过这种方式提交</strong>，一旦当前任期的某条日志通过这样的方式提交，那么根据日志匹配原则，之前的条目也可以间接被提交。</p>
+<h2 id="选举限制"><a href="#选举限制" class="headerlink" title="选举限制"></a>选举限制</h2><p>在任何基于leader的一致性算法中，leader都必须存储所有已提交的日志条目。</p>
+<p>Raft在投票阶段阻止不符合条件的candidate赢得选举。candidate为了赢得选举必须和过半的节点通信，这意味着至少其中一个服务器包含了所有已提交的日志条目。</p>
+<p>如果candidate的日志和至少过半的节点<strong>一样新</strong>(下面会介绍)，那么它一定包含了所有已提交的条目。</p>
+<p>RequestVoteRPC执行这样的限制：RPC中包含candidate的日志信息，<strong>如果投票者比自己的日志新，那么投票者会拒绝投票的请求。</strong></p>
+<blockquote>
+<p>何为一样新？ Raft通过比较两份日志最后一条日志条目的索引值和任期号来比较，如果两份日志的最后日志的任期号不同，那么任期号大的新；如果任期号相同，那么日志长的新。</p>
+</blockquote>
+<h2 id="回退加速"><a href="#回退加速" class="headerlink" title="回退加速"></a>回退加速</h2><p>在之前的处理中，当AppendEntriesRPC失败时，只将nextIndex回退一位，但是当有多个节点频繁断开连接，想要同步日志就会带来巨大的性能损耗。</p>
+<blockquote>
+<p>如果你发现2B可以BugFree通过，而TestFigure8Unreliable2C一直超时，那么大概率就是回退效率太低导致的</p>
+</blockquote>
+<p>leader</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>1</th>
+<th>1</th>
+<th>2</th>
+<th>2</th>
+<th>2</th>
+<th>3</th>
+<th>3</th>
+<th>3</th>
+<th>3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Log</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+</tr>
+</tbody></table>
+<p>follower</p>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>1</th>
+<th>1</th>
+<th>2</th>
+<th>2</th>
+<th>2</th>
+<th>2</th>
+<th>2</th>
+<th>2</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Log</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+<td>8</td>
+<td></td>
+</tr>
+</tbody></table>
+<ol>
+<li>Leader发送AppendEntriesRPC，preLogIndex &#x3D; 8,</li>
+<li>follower中存在log[preLogIndex]这条日志，但是term不匹配，那么记录conflictTerm &#x3D; log[preLogIndex].Term，并搜索该任期的第一条日志(log[3])<ol>
+<li>leader接受返回消息，搜索conflictTerm，如果存在该任期，那么nextIndex设置为conflictTerm最后一条日志的后一条(log[6])</li>
+<li>如果不存在conflictTerm任期的条目，则nextIndex &#x3D; conflictIndex</li>
+</ol>
+</li>
+</ol>
+<h2 id="Data-Race"><a href="#Data-Race" class="headerlink" title="Data Race"></a>Data Race</h2><p>对于公共变量的修改，必须通过加锁来保证原子性</p>
+<blockquote>
+<ol>
+<li>对于sendRPC的操作，需要释放锁再调用</li>
+<li>对于发起选举和附加日志，均必须并行发起，否则耗时过多，无法即使得到响应</li>
+<li>如果选用读写锁，可以针对读和写的操作选用不同的锁</li>
+</ol>
+</blockquote>
+<h2 id="sync-Cond"><a href="#sync-Cond" class="headerlink" title="sync.Cond"></a>sync.Cond</h2><p>借助Golang的条件变量，来避免频繁地争夺锁，而是通过其他Goroutine来唤醒正在<code>Wait</code>的Goroutine。</p>
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>鹤染</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://starry54.github.io/2023/08/12db4c7503bd.html">https://starry54.github.io/2023/08/12db4c7503bd.html</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+            
+            <a class="next" rel="next" href="/2023/08/ea2cf4554f06.html">动态规划合集</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 鹤染 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>

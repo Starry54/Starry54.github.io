@@ -164,6 +164,71 @@
                 <div class="container">
     
     
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
 
     
     <article class="post-wrap">
@@ -196,6 +261,29 @@
             <p>f1_score &#x3D;&gt; 在分布不均的数据集评估效果更准确。</p>
 <p>二分类任务 &#x3D;&gt; 预测是否为新增用户</p>
 <p>决策树 &#x3D;&gt; 非结构化数据效果更好</p>
+<h3 id="sklearn"><a href="#sklearn" class="headerlink" title="sklearn"></a>sklearn</h3><p><code>sklearn</code>为深度学习常用的Python第三方库，封装了多种机器学习算法</p>
+<h3 id="特征提取"><a href="#特征提取" class="headerlink" title="特征提取"></a>特征提取</h3><p>训练的特征集合 &#x3D;&gt; 特征子集</p>
+<h4 id="NLP的特征提取"><a href="#NLP的特征提取" class="headerlink" title="NLP的特征提取"></a>NLP的特征提取</h4><p>文本特征 &#x3D;&gt; 数值向量特征</p>
+<h4 id="常用方式"><a href="#常用方式" class="headerlink" title="常用方式"></a>常用方式</h4><ol>
+<li>基于TF-IDF提取</li>
+<li>基于BOW提取</li>
+</ol>
+<h4 id="基于TF-IDF"><a href="#基于TF-IDF" class="headerlink" title="基于TF-IDF"></a>基于TF-IDF</h4><p>$TF(今天|文档1) &#x3D; \frac{词在文档1出现的频率}{文档1的总词数}$</p>
+<p>$IDF(今天) &#x3D; log \frac{语料库文档总数}{出现该词的文档数}$</p>
+<h4 id="基于BOW"><a href="#基于BOW" class="headerlink" title="基于BOW"></a>基于BOW</h4><p>使用词袋模型，对句子编码<br>$$<br>BOW(Sentence) &#x3D; Em<br>$$</p>
+<h4 id="停用词"><a href="#停用词" class="headerlink" title="停用词"></a>停用词</h4><p>不提供有价值信息，可忽略的词</p>
+<p>[今天，天气，很，不好，好]</p>
+<p>BOW(今天天气很不好) &#x3D; (1,1,1,1,0)</p>
+<p>BOW(今天天气很好) &#x3D; (1,1,1,0,1)</p>
+<p>BOW(今天天气好不好) &#x3D; (1,1,0,1,1)</p>
+<p>不使用停用词，上面句子的距离并不大。</p>
+<h3 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h3><ul>
+<li>sklearn.linear_model：线性模型</li>
+<li>sklearn.tree：树模型</li>
+<li>sklearn.neighbors：最近邻模型</li>
+<li>sklearn.svm：支持向量机</li>
+<li>sklearn.ensemble：集成模型</li>
+</ul>
 
         </div>
 
@@ -242,6 +330,8 @@
             </div>
         </section>
         <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/08/ea2cf4554f06.html">动态规划合集</a>
             
             
             <a class="next" rel="next" href="/2023/08/498800fbd2ca.html">平衡树+双指针</a>

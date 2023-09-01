@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta name="author" content="鹤染">
+
+
+
+
+
+<title>动态规划合集 | Starry54</title>
+
+
+
+    <link rel="icon" href="/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="/js/script.js"></script>
+    
+    <script src="/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+    
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+    <script>
+        // this function is used to check current theme before page loaded.
+        (() => {
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme') || '';
+            const isDark = currentTheme === 'dark';
+            const pagebody = document.getElementsByTagName('body')[0]
+            if (isDark) {
+                pagebody.classList.add('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Dark"
+            } else {
+                pagebody.classList.remove('dark-theme');
+                // mobile
+                document.getElementById("mobile-toggle-theme").innerText = "· Light"
+            }
+        })();
+    </script>
+
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">Starry54&#39; Notes</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+                <input id="switch_default" type="checkbox" class="switch_default">
+                <label for="switch_default" class="toggleBtn"></label>
+            </div>
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">Starry54&#39; Notes</a><a id="mobile-toggle-theme">·&nbsp;Light</a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/archives">Posts</a>
+                
+                    <a class="menu-item" href="/category">Categories</a>
+                
+                    <a class="menu-item" href="/tag">Tags</a>
+                
+                    <a class="menu-item" href="/about">About</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+            <div class="main">
+                <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    var tocbot_timer;
+    var DEPTH_MAX = 6; // 为 6 时展开所有
+    var tocbot_default_config = {
+        tocSelector: '.tocbot-list',
+        contentSelector: '.post-content',
+        headingSelector: 'h1, h2, h3, h4, h5',
+        orderedList: false,
+        scrollSmooth: true,
+        onClick: extend_click,
+    };
+
+    function extend_click() {
+        clearTimeout(tocbot_timer);
+        tocbot_timer = setTimeout(function() {
+            tocbot.refresh(obj_merge(tocbot_default_config, {
+                hasInnerContainers: true
+            }));
+        }, 420); // 这个值是由 tocbot 源码里定义的 scrollSmoothDuration 得来的
+    }
+
+    document.ready(function() {
+        tocbot.init(obj_merge(tocbot_default_config, {
+            collapseDepth: 1
+        }));
+    });
+
+    function expand_toc() {
+        var b = document.querySelector('.tocbot-toc-expand');
+        var expanded = b.getAttribute('data-expanded');
+        expanded ? b.removeAttribute('data-expanded') : b.setAttribute('data-expanded', true);
+        tocbot.refresh(obj_merge(tocbot_default_config, {
+            collapseDepth: expanded ? 1 : DEPTH_MAX
+        }));
+        b.innerText = expanded ? 'Expand all' : 'Collapse all';
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    function obj_merge(target, source) {
+        for (var item in source) {
+            if (source.hasOwnProperty(item)) {
+                target[item] = source[item];
+            }
+        }
+        return target;
+    }
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">动态规划合集</h1>
+            
+                <div class="post-meta">
+                    
+                        Author: <a itemprop="author" rel="author" href="/">鹤染</a>
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">August 28, 2023&nbsp;&nbsp;21:37:13</a>
+                        </span>
+                    
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="打家劫舍"><a href="#打家劫舍" class="headerlink" title="打家劫舍"></a>打家劫舍</h2><blockquote>
+<p>一个环形数组，小偷可以选择偷不相邻下标的现金，求最大偷取金额</p>
+</blockquote>
+<p>首先，如果是线性的，那么是一个经典的<code>01背包</code>,只需用两个值分别记录<code>选</code>和<code>不选</code>两种情况即可</p>
+<p>环形的情况下，首尾不能同时选择，那么分别求出，取最值即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">rob</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">1</span>) <span class="keyword">return</span> nums[<span class="number">0</span>];</span><br><span class="line">        <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> rob_line(Arrays.copyOfRange(nums, <span class="number">0</span>, n - <span class="number">1</span>));</span><br><span class="line">        <span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> rob_line(Arrays.copyOfRange(nums, <span class="number">1</span>, n));</span><br><span class="line">        <span class="keyword">return</span> Math.max(a, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">rob_line</span><span class="params">(<span class="type">int</span>[] nums)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> nums.length;</span><br><span class="line">        <span class="type">int</span>[] f = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">2</span>];</span><br><span class="line">        f[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        f[<span class="number">1</span>] = nums[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt; n; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">pre</span> <span class="operator">=</span> f[<span class="number">0</span>];</span><br><span class="line">            f[<span class="number">0</span>] = Math.max(f[<span class="number">0</span>], f[<span class="number">1</span>]);</span><br><span class="line">            f[<span class="number">1</span>] = pre + nums[i];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> Math.max(f[<span class="number">0</span>], f[<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3N披萨"><a href="#3N披萨" class="headerlink" title="3N披萨"></a>3N披萨</h2><blockquote>
+<p>给你一个披萨，它由 3n 块不同大小的部分组成，现在你和你的朋友们需要按照如下规则来分披萨：</p>
+<ul>
+<li>你挑选 <strong>任意</strong> 一块披萨。</li>
+<li>Alice 将会挑选你所选择的披萨逆时针方向的下一块披萨。</li>
+<li>Bob 将会挑选你所选择的披萨顺时针方向的下一块披萨。</li>
+<li>重复上述过程直到没有披萨剩下。</li>
+</ul>
+<p>每一块披萨的大小按顺时针方向由循环数组 <code>slices</code> 表示。</p>
+<p>请你返回你可以获得的披萨大小总和的最大值。</p>
+</blockquote>
+<p>对于任何的节点i，一次选取<code>i-1</code>，<code>i</code>，<code>i+1</code>，下一次中心节点可以选取<code>i-2</code>，<code>i+2</code>，<code>i-3</code>，<code>i+3</code>，… 均可，初步判断，只需两个节点不相邻即可同时选取。</p>
+<p>原问题&#x3D;&gt;从<code>3N</code>长度的环状序列中中选取<code>N</code>个不相邻的节点的最大和</p>
+<p>首先考虑线性的情况，之后转为环状即可</p>
+<p>$dp[i][j]$代表前<code>i</code>个数中选择<code>j</code>个不相邻的数的最大和：</p>
+<ul>
+<li>$i \lt 2 或 j &#x3D; 0$时 $dp[i][j] &#x3D; 0$</li>
+<li>$i \ge 2$ 且 $j \gt 0$时<ul>
+<li>如果选取<code>i</code>，那么<code>i-1</code>不能被选择，$dp[i][j] &#x3D; dp[i-2][j-1] + slices[i]$</li>
+<li>如果不选取<code>i</code>，那么，$dp[i][j] &#x3D; dp[i-1][j]$</li>
+</ul>
+</li>
+</ul>
+<p>&#x3D;&gt; $dp[i][j] &#x3D; max(dp[i-2][j-1] + slices[i], dp[i-1][i])$</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">maxSizeSlices</span><span class="params">(<span class="type">int</span>[] slices)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">N</span> <span class="operator">=</span> slices.length;</span><br><span class="line">        <span class="keyword">if</span> (N == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (N == <span class="number">3</span>) <span class="keyword">return</span> Math.max(slices[<span class="number">0</span>], Math.max(slices[<span class="number">1</span>], slices[<span class="number">2</span>]));</span><br><span class="line">        <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> maxInLine(Arrays.copyOfRange(slices, <span class="number">0</span>, N - <span class="number">1</span>));</span><br><span class="line">        <span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> maxInLine(Arrays.copyOfRange(slices, <span class="number">1</span>, N));</span><br><span class="line">        <span class="keyword">return</span> Math.max(a, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 线性情况下的最大值</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">maxInLine</span><span class="params">(<span class="type">int</span>[] slices)</span> &#123;</span><br><span class="line">        <span class="comment">// 难点在于需要将题意转化为从该序列中选取n个不相邻的数的最大值</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">N</span> <span class="operator">=</span> slices.length;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> (N + <span class="number">1</span>) / <span class="number">3</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span>[][] f = <span class="keyword">new</span> <span class="title class_">int</span>[N][n+<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; N; i++) &#123;</span><br><span class="line">            Arrays.fill(f[i], Integer.MIN_VALUE);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        f[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        f[<span class="number">0</span>][<span class="number">1</span>] = slices[<span class="number">0</span>];</span><br><span class="line">        f[<span class="number">1</span>][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">        f[<span class="number">1</span>][<span class="number">1</span>] = Math.max(slices[<span class="number">1</span>], f[<span class="number">0</span>][<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">2</span>; i &lt; N; i++) &#123;</span><br><span class="line">            f[i][<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">                f[i][j] = Math.max(f[i-<span class="number">1</span>][j], f[i-<span class="number">2</span>][j-<span class="number">1</span>] + slices[i]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> f[N-<span class="number">1</span>][n];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="切披萨"><a href="#切披萨" class="headerlink" title="切披萨"></a>切披萨</h2><blockquote>
+<p>给你一个 <code>rows x cols</code> 大小的矩形披萨和一个整数 <code>k</code> ，矩形包含两种字符： <code>&#39;A&#39;</code> （表示苹果）和 <code>&#39;.&#39;</code> （表示空白格子）。你需要切披萨 <code>k-1</code> 次，得到 <code>k</code> 块披萨并送给别人。</p>
+<p>每一刀可以选择垂直或者水平切，垂直则左半部分送人，水平则上半部分送人，最后一道切完后需要把最后一块给最后一个人。</p>
+<p>返回确保每一块至少一个苹果的方案数，返回它对 10^9 + 7 取余的结果。</p>
+</blockquote>
+<h3 id="子问题拆解"><a href="#子问题拆解" class="headerlink" title="子问题拆解"></a>子问题拆解</h3><p>如果<code>pizza</code>有<code>m</code>行<code>n</code>列</p>
+<ol>
+<li>垂直切，枚举左侧列数<code>w</code>，剩余<code>m</code>行<code>n-w</code>列的矩形，还需<code>k-2</code>刀</li>
+<li>水平切，枚举上方行数<code>h</code>，剩余<code>m-h</code>行<code>n</code>列的矩形，还需<code>k-2</code>刀</li>
+</ol>
+<h3 id="如何编码？"><a href="#如何编码？" class="headerlink" title="如何编码？"></a>如何编码？</h3><p>按照题目的切法，我们的右下角一直是固定的，因此只需要左上角的坐标，即可确定矩形。</p>
+<p>$dfs(c, i, j)$表示将$(i,j)$对应的矩形，切c刀的方案数</p>
+<p>$dfs(c, i, j) &#x3D; \underset{j \lt j2 \lt n}{\Sigma} dfs(c - 1, i, j_2) + \underset{i &lt; i2 \lt m}{\Sigma} dfs(c-1, i_2, j)$</p>
+<blockquote>
+<p>如何统计当前矩形内的苹果个数？</p>
+<p>&#x3D;&gt; 前缀和</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MOD</span> <span class="operator">=</span> (<span class="type">int</span>) <span class="number">1e9</span> + <span class="number">7</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">ways</span><span class="params">(String[] pizza, <span class="type">int</span> k)</span> &#123;</span><br><span class="line">        <span class="type">MatrixSum</span> <span class="variable">ms</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MatrixSum</span>(pizza);</span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> pizza.length, n = pizza[<span class="number">0</span>].length();</span><br><span class="line">        <span class="type">var</span> <span class="variable">memo</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">int</span>[k][m][n];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; k; i++)</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; m; j++)</span><br><span class="line">                Arrays.fill(memo[i][j], -<span class="number">1</span>); <span class="comment">// -1 表示没有计算过</span></span><br><span class="line">        <span class="keyword">return</span> dfs(k - <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, memo, ms, m, n);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> c, <span class="type">int</span> i, <span class="type">int</span> j, <span class="type">int</span>[][][] memo, MatrixSum ms, <span class="type">int</span> m, <span class="type">int</span> n)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="number">0</span>) <span class="comment">// 递归边界：无法再切了</span></span><br><span class="line">            <span class="keyword">return</span> ms.query(i, j, m, n) &gt; <span class="number">0</span> ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (memo[c][i][j] != -<span class="number">1</span>) <span class="comment">// 之前计算过</span></span><br><span class="line">            <span class="keyword">return</span> memo[c][i][j];</span><br><span class="line">        <span class="type">int</span> <span class="variable">res</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j2</span> <span class="operator">=</span> j + <span class="number">1</span>; j2 &lt; n; j2++) <span class="comment">// 垂直切</span></span><br><span class="line">            <span class="keyword">if</span> (ms.query(i, j, m, j2) &gt; <span class="number">0</span>) <span class="comment">// 有苹果</span></span><br><span class="line">                res = (res + dfs(c - <span class="number">1</span>, i, j2, memo, ms, m, n)) % MOD;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i2</span> <span class="operator">=</span> i + <span class="number">1</span>; i2 &lt; m; i2++) <span class="comment">// 水平切</span></span><br><span class="line">            <span class="keyword">if</span> (ms.query(i, j, i2, n) &gt; <span class="number">0</span>) <span class="comment">// 有苹果</span></span><br><span class="line">                res = (res + dfs(c - <span class="number">1</span>, i2, j, memo, ms, m, n)) % MOD;</span><br><span class="line">        <span class="keyword">return</span> memo[c][i][j] = res; <span class="comment">// 记忆化</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 二维前缀和模板（&#x27;A&#x27; 的 ASCII 码最低位为 1，&#x27;.&#x27; 的 ASCII 码最低位为 0）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MatrixSum</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span>[][] sum;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MatrixSum</span><span class="params">(String[] matrix)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">m</span> <span class="operator">=</span> matrix.length, n = matrix[<span class="number">0</span>].length();</span><br><span class="line">        sum = <span class="keyword">new</span> <span class="title class_">int</span>[m + <span class="number">1</span>][n + <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; n; j++) &#123;</span><br><span class="line">                sum[i + <span class="number">1</span>][j + <span class="number">1</span>] = sum[i + <span class="number">1</span>][j] + sum[i][j + <span class="number">1</span>] - sum[i][j] + (matrix[i].charAt(j) &amp; <span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回左上角在 (r1,c1) 右下角在 (r2-1,c2-1) 的子矩阵元素和（类似前缀和的左闭右开）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">query</span><span class="params">(<span class="type">int</span> r1, <span class="type">int</span> c1, <span class="type">int</span> r2, <span class="type">int</span> c2)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> sum[r2][c2] - sum[r2][c1] - sum[r1][c2] + sum[r1][c1];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+            <section class="post-copyright">
+                
+                    <p class="copyright-item">
+                        <span>Author:</span>
+                        <span>鹤染</span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>Permalink:</span>
+                        <span><a href="https://starry54.github.io/2023/08/ea2cf4554f06.html">https://starry54.github.io/2023/08/ea2cf4554f06.html</a></span>
+                    </p>
+                
+                
+                    <p class="copyright-item">
+                        <span>License:</span>
+                        <span>Copyright (c) 2019 <a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by-nc/4.0/">CC-BY-NC-4.0</a> LICENSE</span>
+                    </p>
+                
+                
+                     <p class="copyright-item">
+                         <span>Slogan:</span>
+                         <span>Do you believe in <strong>DESTINY</strong>?</span>
+                     </p>
+                
+
+            </section>
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/2023/08/12db4c7503bd.html"></a>
+            
+            
+            <a class="next" rel="next" href="/2023/08/9f2497bc41d8.html">NLP入门</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+            </div>
+            <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© 鹤染 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
+    </div>
+</footer>
+
+    </div>
+</body>
+
+</html>
